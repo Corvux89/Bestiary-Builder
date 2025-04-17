@@ -10,6 +10,9 @@ export function scrapeFeatures(features: FeatureEntity[] = []): number[]{
     for (const feature of features){
         let automation: object | null
 
+        let distance = levenshteinDistance(feature.name.toLowerCase(), "bites")
+        console.log(feature.name + ": " + distance + `${distance < 3 ? " Match" : " No Match"}`)
+
         if (feature.automation){
             automation = feature.automation
         } else {
@@ -132,4 +135,27 @@ function averageDamage(damageString: string): number{
     const averageRoll = (dieSize+1)/2
     const averageDmg = (averageRoll * numDie) + (mod ? Number(mod) : 0)
     return Math.floor(averageDmg)
+}
+function levenshteinDistance(a: string, b: string): number {
+    const matrix: number[][] = [];
+
+    for (let i = 0; i <= a.length; i++) {
+        matrix[i] = [i];
+    }
+    for (let j = 0; j <= b.length; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[i][j] = Math.min(
+                matrix[i - 1][j] + 1,    
+                matrix[i][j - 1] + 1,    
+                matrix[i - 1][j - 1] + cost
+            );
+        }
+    }
+
+    return matrix[a.length][b.length];
 }
